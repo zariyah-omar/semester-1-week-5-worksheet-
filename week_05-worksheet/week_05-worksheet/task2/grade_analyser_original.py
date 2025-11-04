@@ -29,3 +29,56 @@ Your output files must be structured exactly as described - output files for all
 Note:
 Your code will only be tested on valid files in the format shown in the 4 example files in this folder - you do not need to validate any data.
 '''
+import os
+print("Current working directory:", os.getcwd())
+print("Files here:", os.listdir())
+
+import csv
+
+# Ask user for the input file name
+input_filename = input("Enter the student data filename: ")
+
+with open(input_filename, 'r') as infile:
+    reader = csv.reader(infile)
+    output_rows = []
+
+    next(reader)  # Skip the header row
+
+    for row in reader:
+        student_id = row[0]
+        # Extract valid (non-empty) grades and convert them to floats
+        grades = [float(x) for x in row[1:] if x.strip() != '']
+
+        # Calculate average
+        if len(grades) > 0:
+            average = sum(grades) / len(grades)
+        else:
+            average = 0.0
+
+        # Determine classification
+        if average >= 70:
+            classification = "1"
+        elif average >= 60:
+            classification = "2:1"
+        elif average >= 50:
+            classification = "2:2"
+        elif average >= 40:
+            classification = "3"
+        else:
+            classification = "F"
+
+        # Add result to output list
+        output_rows.append([student_id, f"{average:.2f}", classification])
+
+        # Add result to output list
+        output_rows.append([student_id, f"{average:.2f}", classification])
+
+# Create output file name
+output_filename = input_filename + "_out.csv"
+
+# Write results to new CSV file
+with open(output_filename, 'w', newline='') as outfile:
+    writer = csv.writer(outfile)
+    writer.writerows(output_rows)
+
+print(f"Results written to {output_filename}")
