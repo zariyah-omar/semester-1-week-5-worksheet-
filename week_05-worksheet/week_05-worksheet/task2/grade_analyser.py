@@ -29,56 +29,50 @@ Your output files must be structured exactly as described - output files for all
 Note:
 Your code will only be tested on valid files in the format shown in the 4 example files in this folder - you do not need to validate any data.
 '''
-import os
-print("Current working directory:", os.getcwd())
-print("Files here:", os.listdir())
-
 import csv
 
-# Ask user for the input file name
-input_filename = input("Enter the student data filename: ")
+# Ask user for input file name
+input_filename = input("Enter the student CSV file name: ")
+output_filename = input_filename + "_out.csv"
 
-with open(input_filename, 'r') as infile:
-    reader = csv.reader(infile)
-    output_rows = []
-
-    next(reader)  # Skip the header row
-
-    for row in reader:
+with open(input_filename, 'r', newline='') as infile:
+    csv_reader = csv.reader(infile)
+    
+    # Skip header if present
+    header = next(csv_reader)
+    if header[0].lower() != "student_id":
+        infile.seek(0)  # No header, rewind
+    
+    results = []
+    
+    for row in csv_reader:
         student_id = row[0]
-        # Extract valid (non-empty) grades and convert them to floats
+        # Only convert non-empty grades to float
         grades = [float(x) for x in row[1:] if x.strip() != '']
-
-        # Calculate average
-        if len(grades) > 0:
+        
+        if grades:  # Avoid division by zero
             average = sum(grades) / len(grades)
         else:
             average = 0.0
-
+        
         # Determine classification
         if average >= 70:
-            classification = "1"
+            classification = '1'
         elif average >= 60:
-            classification = "2:1"
+            classification = '2:1'
         elif average >= 50:
-            classification = "2:2"
+            classification = '2:2'
         elif average >= 40:
-            classification = "3"
+            classification = '3'
         else:
-            classification = "F"
+            classification = 'F'
+        
+        results.append([student_id, f"{average:.2f}", classification])
 
-        # Add result to output list
-        output_rows.append([student_id, f"{average:.2f}", classification])
-
-        # Add result to output list
-        output_rows.append([student_id, f"{average:.2f}", classification])
-
-# Create output file name
-output_filename = input_filename + "_out.csv"
-
-# Write results to new CSV file
+# Write output CSV
 with open(output_filename, 'w', newline='') as outfile:
     writer = csv.writer(outfile)
-    writer.writerows(output_rows)
+    for r in results:
+        writer.writerow(r)
 
-print(f"Results written to {output_filename}")
+print(f"Output written to {output_filename}")
